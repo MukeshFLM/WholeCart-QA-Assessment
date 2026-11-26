@@ -1,0 +1,74 @@
+# BUG-003: Application Allows Order Placement Beyond Available Stock, Resulting in Negative Inventory
+
+**Module:** Product Catalogue / Cart / Checkout / Inventory  
+**Severity:** High  
+**Priority:** High  
+**Status:** Open  
+**Requirement Reference:** BR-01
+
+## 1. Description
+The application allows buyers to place orders for quantities exceeding the available product stock. As a result, the inventory becomes negative after successful order placement.
+
+## 2. Preconditions
+1. Buyer is logged in as buyer1.
+2. Product has limited available stock.
+3. Product is available for purchase.
+
+## 3. Test Data
+
+| Field | Value |
+|---|---|
+| Product Name | Chef's Coriander Powder |
+| SKU | SKU-0209 |
+| Seller | FreshFarm Foods |
+| Available Stock Before Order | 213 pieces |
+| Unit Selected | Case |
+| Case Size | 12 pieces |
+| Quantity Ordered | 99 cases |
+| Total Requested Quantity | 1,188 pieces |
+
+## 4. Steps to Reproduce
+1. Login to WholeCart using buyer1 credentials.
+2. Navigate to Catalogue.
+3. Search for SKU-0209.
+4. Open Chef's Coriander Powder.
+5. Verify the available stock is 213 pieces.
+6. Select Case as the purchase unit.
+7. Enter quantity as 99.
+8. Click Add to Cart.
+9. Proceed to Checkout.
+10. Select an available delivery date and slot.
+11. Click Place Order.
+12. Navigate back to the product page.
+13. Observe the available stock.
+
+## 5. Expected Result
+The application should validate the requested quantity against available stock before accepting the order.
+
+Since 1,188 pieces are requested while only 213 pieces are available, the application should reject the order and display an appropriate insufficient-stock validation message.
+
+Inventory should never become negative.
+
+## 6. Actual Result
+The application successfully accepted the order for 99 cases (1,188 pieces), despite the available stock being only 213 pieces.
+
+The product page subsequently displayed negative inventory of **-975 pieces**.
+
+Calculation:
+
+213 - (99 × 12) = -975 pieces.
+
+## 7. Business Impact
+- Inventory integrity is compromised.
+- Sellers may receive orders for unavailable products.
+- Buyers may purchase quantities exceeding available stock.
+- Incorrect inventory information may affect subsequent orders.
+- Potential financial and operational losses for sellers.
+
+## 8. Evidence
+1. BUG-003-Negative-Stock.png – Product page showing -975 pieces.
+2. BUG-003-Order-Details.png – Order details showing 99 cases ordered.
+3. BUG-003-Stock-View.png – Subsequent product page showing 213 pieces; requires refresh/reproduction verification.
+
+## 9. Requirement Reference
+**BR-01:** Stock is held in pieces. A case contains the product's case size in pieces. An order can never take more pieces than are in stock, including when two buyers order at the same moment.
